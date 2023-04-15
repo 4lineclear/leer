@@ -1,11 +1,12 @@
-
 use std::fmt::{Debug, Formatter, Result as fmtResult};
 
+mod generation;
 
 pub const BOARD_SIZE: usize = 15;
 
 pub struct Game {
     pub board: [[Tile; BOARD_SIZE]; BOARD_SIZE],
+    bag: Vec<char>
 }
 
 impl Game {
@@ -16,91 +17,86 @@ impl Game {
 
 impl Default for Game {
     fn default() -> Self {
-        Self { board: 
-            generate_board([
-                ['♠','-','-','♡','-','-','-','♠','-','-','-','♡','-','-','♠'],
-                ['-','♣','-','-','-','♢','-','-','-','♢','-','-','-','♣','-'],
-                ['-','-','♣','-','-','-','♡','-','♡','-','-','-','♣','-','-'],
-                ['♡','-','-','♣','-','-','-','♡','-','-','-','♣','-','-','♡'],
-                ['-','-','-','-','♣','-','-','-','-','-','♣','-','-','-','-'],
-                ['-','♢','-','-','-','♢','-','-','-','♢','-','-','-','♢','-'],
-                ['-','-','♡','-','-','-','♡','-','♡','-','-','-','♡','-','-'],
-                ['♠','-','-','♡','-','-','-','♣','-','-','-','♡','-','-','♠'],
-                ['-','-','♡','-','-','-','♡','-','♡','-','-','-','♡','-','-'],
-                ['-','♢','-','-','-','♢','-','-','-','♢','-','-','-','♢','-'],
-                ['-','-','-','-','♣','-','-','-','-','-','♣','-','-','-','-'],
-                ['♡','-','-','♣','-','-','-','♡','-','-','-','♣','-','-','-'],
-                ['-','-','♣','-','-','-','♡','-','♡','-','-','-','♣','-','-'],
-                ['-','♣','-','-','-','♢','-','-','-','♢','-','-','-','♣','-'],
-                ['♠','-','-','♡','-','-','-','♠','-','-','-','♡','-','-','♠']
-        ]) }
+        Self { board: generation::generate_board(), bag: generation::generate_bag() }
     }
 }
 // ♡, ♢, ♣, ♠
-fn generate_board(char_board: [[char; BOARD_SIZE]; BOARD_SIZE]) -> [[Tile; BOARD_SIZE]; BOARD_SIZE]{
-    let mut board: [[Tile; BOARD_SIZE]; BOARD_SIZE] = [[Tile::new_boardtile('-'); 15]; 15];
-
-    for i in 0..BOARD_SIZE {
-        for j in 0..BOARD_SIZE {
-            board[i][j] = Tile::new_boardtile(char_board[i][j]);
-        }
-    }
-    board
-}
 impl Debug for Game {
     fn fmt(&self, f: &mut Formatter) -> fmtResult {
-        write!(f, "Board:\n  ")?;
+        write!(f, "Board:\n ")?;
         for i in 1..16 {
             write!(f, "{:X} ", i)?;
         }
         writeln!(f)?;
 
         for (i, row) in self.board.iter().enumerate() {
-            write!(f, "{:X} ", i+1)?;
+            write!(f, "{:X} ", i + 1)?;
             for tile in row {
-                write!(f, "{} ", tile.letter)?;
+                write!(f, "{} ", tile.symbol)?;
             }
-            writeln!(f, "{:X}", i+1)?;
+            writeln!(f, "{:X}", i + 1)?;
         }
         write!(f, "  ")?;
-        
+
         for i in 1..16 {
             write!(f, "{:X} ", i)?;
         }
-        writeln!(f)
+        write!(f,"\nBag:\n")?;
+        
+        for letter in &self.bag{
+            write!(f, "{letter}, ")?;
+        }
+        write!(f,"")
     }
 }
 
 #[derive(Clone, Copy)]
 pub struct Tile {
-    pub letter: char,
+    pub symbol: char,
     pub tile_type: TileType,
 }
 
 impl Tile {
-    pub fn new_boardtile(symbol: char) -> Tile {
-        Tile { 
-            letter: symbol, 
-            tile_type: TileType::BoardTile(Multiplier::from_char(symbol))
+    fn new(symbol: char) -> Self {
+        Self {
+            symbol,
+            tile_type: TileType::new(symbol),
         }
     }
+}
 
-    pub fn new_playtile(letter: char) -> Tile{
-        Tile { 
-            letter, 
-            tile_type: TileType::PlayTile( 
-                match letter {
-                    '*'                                                         => 0,
-                    'A' | 'E' | 'I' | 'L' | 'N' | 'O' | 'R' | 'S' | 'T' | 'U'   => 1,
-                    'D' | 'G'                                                   => 2,
-                    'B' | 'C' | 'M' | 'P'                                       => 3,
-                    'F' | 'H' | 'V' | 'W' | 'Y'                                 => 4,
-                    'K'                                                         => 5,
-                    'J' | 'X'                                                   => 8,
-                    'Q' | 'Z'                                                   => 10,
-                     _                                                          => panic!("{letter} is not a valid character, must be 'A-Z' or '*' ")
-                }
-            )
+// impl FromIterator<Tile> for Tile {
+//     fn from_iter<T: IntoIterator<Item = char>>(iter: T) -> Self {
+//         todo!()
+//     }
+// }
+
+#[derive(Clone, Copy)]
+pub enum TileType {
+    BoardTile(Multiplier),
+    PlayTile(u8),
+}
+
+impl TileType {
+    fn new(symbol: char) -> Self {
+        match symbol {
+            '-'                             => TileType::BoardTile(Multiplier::OA),
+            '♡'                             => TileType::BoardTile(Multiplier::DL),
+            '♢'                             => TileType::BoardTile(Multiplier::TL),
+            '♣' | '★'                       => TileType::BoardTile(Multiplier::DW),
+            '♠'                             => TileType::BoardTile(Multiplier::TW),
+
+            '*'                             => TileType::PlayTile(0),
+            'A' | 'E' | 'I' | 'L' | 'N' | 
+            'O' | 'R' | 'S' | 'T' | 'U'     => TileType::PlayTile(1),
+            'D' | 'G'                       => TileType::PlayTile(2),
+            'B' | 'C' | 'M' | 'P'           => TileType::PlayTile(3),
+            'F' | 'H' | 'V' | 'W' | 'Y'     => TileType::PlayTile(4),
+            'K'                             => TileType::PlayTile(5),
+            'J' | 'X'                       => TileType::PlayTile(8),
+            'Q' | 'Z'                       => TileType::PlayTile(10),
+
+            _ => panic!("{symbol}"),
         }
     }
 }
@@ -111,21 +107,9 @@ pub enum Multiplier {
     DL, // Double Letter
     TL, // Triple Letter
     DW, // Double Word
-    TW  // Triple Word
+    TW, // Triple Word
 }
 
-impl Multiplier {
-    pub fn from_char(symbol: char) -> Multiplier{
-        match symbol {
-            '-'  => Multiplier::OA,
-            '♡'  => Multiplier::DL,
-            '♢'  => Multiplier::TL,
-            '♣'  => Multiplier::DW,
-            '♠'  => Multiplier::TW,
-             _   => panic!("{symbol} not a valid character, must be one of: '-, ♡, ♢, ♣, ♠'")
-        }
-    }   
-}
 // #[derive(Debug)]
 // struct MultiplierConvertError;
 // impl Error for MultiplierConvertError { }
@@ -134,9 +118,3 @@ impl Multiplier {
 //         write!(f, "Invalid Char used")
 //     }
 // }
-
-#[derive(Clone, Copy)]
-pub enum TileType {
-    BoardTile(Multiplier),
-    PlayTile(u8),
-}
