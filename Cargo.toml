@@ -1,9 +1,9 @@
 [workspace]
 
-members = [
-    "scrabble", 
-    "solver"
-]
+# members = [
+#     "scrabble", 
+#     "solver"
+# ]
 
 [package]
 name = "leer"
@@ -13,4 +13,4 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-scrabble={path = "./scrabble"}
+# scrabble={path = "./scrabble"}
