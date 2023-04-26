@@ -8,7 +8,7 @@
 
 - Fields:
     - bag: Vec\<Letter>
-    - board: \[\[Tile]]
+    - board: Vec\<Letter>
     - players: Vec\<Player>
     - set_words: Vec\<Word>
     - validator: WordChecker

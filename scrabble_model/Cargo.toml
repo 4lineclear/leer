@@ -1,20 +1,11 @@
-[workspace]
-
-members = [
-    "scrabble_model",
-]
-
 [package]
-name = "leer"
-description = "scrabb(le) solv(er)"
-authors = ["Yahya"]
+name = "scrabble_model"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-scrabble_model={path = "./scrabble_model"}
-
+thiserror="1.0.40"
 # serde = { version = "1.0", features = ["derive"] }
-# csv = "1.1"
+# serde_json = "1.0"
