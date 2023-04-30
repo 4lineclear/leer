@@ -16,5 +16,6 @@ edition = "2021"
 [dependencies]
 scrabble_model={path = "./scrabble_model"}
 
+
 # serde = { version = "1.0", features = ["derive"] }
 # csv = "1.1"
