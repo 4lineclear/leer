@@ -1,15 +1,15 @@
-use crate::{standard_game, Game, error::Result};
+use crate::{error::Result, Game};
 
 mod parse;
 
-
 pub fn load() -> Result<Game> {
-    let bag = parse::parse_bag()?;
-    let board =parse::parse_board()?;
+    let bag = parse::bag()?;
+    let board = parse::board()?;
 
     Ok(Game {
         bag,
         board,
-        ..standard_game()
+        players: Vec::new(),
+        set_words: Vec::new(),
     })
 }

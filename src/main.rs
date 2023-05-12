@@ -5,11 +5,10 @@ use std::error::Error;
 // TODO:https://www.wordgamedictionary.com/sowpods/download/sowpods.txt
 fn main() -> Result<(), Box<dyn Error>> {
     // std::env::set_var("RUST_BACKTRACE", "1");
-    let game = scrabble_model::config::load()?;
-    dbg!(game);
+
+    /* let game =  */
+    scrabble_model::config::load()?;
+    // dbg!(game);
+
     Ok(())
 }
-
-// fn print_type_of<T>(_: &T) {
-//     println!("{}", std::any::type_name::<T>())
-// }
